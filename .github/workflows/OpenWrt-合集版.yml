@@ -70,6 +70,13 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+    
+    - name: 修复ath9k GPIO编译错误
+      run: |
+        mkdir -p openwrt/package/kernel/mac80211/patches
+        cat > openwrt/package/kernel/mac80211/patches/999-ath9k-gpio.patch << EOF
+        ...（上述补丁内容）
+        EOF
 
     - name: 添加外部插件
       run: |
