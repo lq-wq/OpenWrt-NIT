@@ -25,3 +25,4 @@ git clone https://github.com/sirpdboy/luci-app-lucky.git package/luci-app-lucky
 git clone -b main https://github.com/nikkinikki-org/OpenWrt-nikki.git package/OpenWrt-nikki
 git clone https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp 
 git clone https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
+git clone https://github.com/souwei168/luci-app-store.git package/luci-app-store
