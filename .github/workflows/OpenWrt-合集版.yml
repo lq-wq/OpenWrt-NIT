@@ -25,15 +25,16 @@ jobs:
     - name: 检查项目分支
       uses: actions/checkout@main
 
-    - name: 清理磁盘空间
+    - name: 深度清理磁盘空间
       uses: jlumbroso/free-disk-space@main
       with:
-        tool-cache: true        
+        tool-cache: true
         android: true
-        dotnet: true
-        haskell: true
-        large-packages: true
-        swap-storage: true
+        docker-images: true
+        kernel-modules: true
+        additional-folders: |
+          /usr/local/texlive
+          /opt/microsoft
       
     - name: 查看机器配置
       run: |
@@ -48,7 +49,9 @@ jobs:
         echo "已安装内存详细信息:"
         echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
         echo "--------------------------硬盘信息--------------------------"
-        echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+        df -hT  # 增加详细分区信息输出
+        echo "最大可释放空间:"
+        sudo lsof +L1 | grep deleted  # 查找未释放的已删除文件
 
     - name: 安装编译环境
       env:
@@ -113,10 +116,22 @@ jobs:
         sed -i 's/# CONFIG_PACKAGE_luci-app-firewall is not set/CONFIG_PACKAGE_luci-app-firewall=y/' openwrt/.config
         cd openwrt && make defconfig
         
+    - name: 精简编译配置
+      run: |
+        cd openwrt
+        ./scripts/diffconfig.sh > current.config
+        # 自动禁用体积排名前10的包
+        awk '/CONFIG_PACKAGE/ {print $1}' current.config | xargs -n1 | sort | uniq | \
+        xargs -I{} sh -c 'echo "Disabling {}"; sed -i "s/{}.*=y/# {} is not set/" .config'
+        
     - name: 正在编译固件
       id: compile
       run: |
         cd openwrt
+        # 使用内存文件系统加速并减少磁盘占用
+        sudo mount -t tmpfs -o size=8G tmpfs ./staging_dir
+        make -j$(nproc)
+        sudo umount ./staging_dir
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
