@@ -22,3 +22,16 @@ sed -i '/DTS_DIR:=$(LINUX_DIR)/a\BUILD_DATE_PREFIX := $(shell date +'%F')' ./inc
 
 # 7-只显示CPU型号
 sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/lean/autocore/files/x86/autocore
+
+# 添加白名单机制（保留核心组件）
+KEEP_PKGS="luci-base busybox dnsmasq"
+
+awk -v keep="$KEEP_PKGS" '
+  BEGIN {split(keep, arr, " ")}
+  /^CONFIG_PACKAGE/ && !/#/ {
+    pkg = $1
+    gsub(/\//,"\\/",pkg)
+    for (i in arr) if (pkg ~ arr[i]) next  # 跳过白名单
+    print pkg
+  }' current.config | \
+xargs -I{} sed -i "s|^.*{}\(.*\)=y|# \1 is not set|" .config
