@@ -20,7 +20,7 @@ echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git;main" >
 echo "src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall-packages.git;main" >> "feeds.conf.default"
 
 # 6-添加其它插件
-git clone https://github.com/lq-wq/luci-app-quickstart.git package/luci-app-quickstart
+# git clone https://github.com/lq-wq/luci-app-quickstart.git package/luci-app-quickstart
 git clone https://github.com/sirpdboy/luci-app-lucky.git package/luci-app-lucky
 git clone -b main https://github.com/nikkinikki-org/OpenWrt-nikki.git package/OpenWrt-nikki
 git clone https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp 
