@@ -108,6 +108,11 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
+    - name: 修复防火墙依赖
+      run: |
+        sed -i 's/# CONFIG_PACKAGE_luci-app-firewall is not set/CONFIG_PACKAGE_luci-app-firewall=y/' openwrt/.config
+        cd openwrt && make defconfig
+        
     - name: 正在编译固件
       id: compile
       run: |
